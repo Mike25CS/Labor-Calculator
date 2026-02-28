@@ -22,7 +22,7 @@
 
 body{
   margin:0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background: radial-gradient(circle at top left,#111827 0%,#0b0f14 60%);
   color:var(--text);
   padding:20px;
@@ -150,41 +150,54 @@ tbody td:first-child{
 </head>
 
 <body>
-
 <div class="container">
   <div class="card">
     <h1>Labor Margin Calculator</h1>
 
     <div class="input-group">
-      <label>Selling Price</label>
-      <input id="price" type="number" placeholder="Enter selling price" />
+      <label for="price">Selling Price</label>
+      <input id="price" type="number" inputmode="decimal" step="0.01" placeholder="Enter selling price" />
     </div>
 
     <div class="input-group">
-      <label>Material Cost</label>
-      <input id="materials" type="number" placeholder="Enter material cost" />
+      <label for="materials">Material Cost</label>
+      <input id="materials" type="number" inputmode="decimal" step="0.01" placeholder="Enter material cost" />
     </div>
 
-    <button onclick="calculate()">Generate Table</button>
+    <button id="generateBtn" type="button">Generate Table</button>
 
     <div id="summary" class="summary" style="display:none;"></div>
 
-    <table>
+    <table aria-label="Gross margin labor table">
       <thead>
         <tr>
           <th>Gross Margin</th>
           <th>Max Labor Allowed</th>
         </tr>
       </thead>
-      <tbody id="tableBody"></tbody>
+      <tbody id="tableBody">
+        <tr>
+          <td colspan="2" style="color:var(--muted); padding:14px 12px;">
+            Enter values and tap “Generate Table”.
+          </td>
+        </tr>
+      </tbody>
     </table>
-
   </div>
 </div>
 
 <script>
 function formatMoney(val){
-  return "$" + val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const n = Number(val);
+  if (!isFinite(n)) return "$0.00";
+  return "$" + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function rowClassForPct(pct){
+  if (pct >= 30 && pct <= 34) return "red";
+  if (pct >= 35 && pct <= 37) return "orange";
+  if (pct >= 38 && pct <= 50) return "green";
+  return "";
 }
 
 function calculate(){
@@ -193,37 +206,50 @@ function calculate(){
   const tbody = document.getElementById("tableBody");
   const summary = document.getElementById("summary");
 
-  if(!price || price <= 0) return;
+  if (!isFinite(price) || price <= 0 || !isFinite(materials) || materials < 0){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="2" style="color:var(--muted); padding:14px 12px;">
+          Please enter a valid Selling Price (> 0) and Material Cost (≥ 0).
+        </td>
+      </tr>
+    `;
+    summary.style.display = "none";
+    return;
+  }
 
-  tbody.innerHTML="";
-  
+  // Max Labor (38%) and Ideal Labor (41%)
   const labor38 = (price * (1 - 0.38)) - materials;
   const labor41 = (price * (1 - 0.41)) - materials;
 
-  summary.style.display="block";
+  summary.style.display = "block";
   summary.innerHTML = `
-    <div>Max Labor Allowed: ${formatMoney(labor38)}</div>
-    <div>Ideal Labor Value: ${formatMoney(labor41)}</div>
+    <div>Max Labor: ${formatMoney(labor38)}</div>
+    <div>Ideal Labor: ${formatMoney(labor41)}</div>
   `;
 
-  for(let i=30;i<=50;i++){
-    const gm=i/100;
-    const labor=(price*(1-gm))-materials;
+  let rows = "";
+  for (let pct = 30; pct <= 50; pct++){
+    const gm = pct / 100;
+    const labor = (price * (1 - gm)) - materials;
 
-    let rowClass="";
-    if(i>=30 && i<=34) rowClass="red";
-    if(i>=35 && i<=37) rowClass="orange";
-    if(i>=38 && i<=50) rowClass="green";
-
-    tbody.innerHTML+=`
-      <tr class="${rowClass}">
-        <td>${i}%</td>
+    rows += `
+      <tr class="${rowClassForPct(pct)}">
+        <td>${pct}%</td>
         <td>${formatMoney(labor)}</td>
       </tr>
     `;
   }
+  tbody.innerHTML = rows;
 }
-</script>
 
+// Button + Enter-to-calc
+document.getElementById("generateBtn").addEventListener("click", calculate);
+["price","materials"].forEach(id => {
+  document.getElementById(id).addEventListener("keydown", (e) => {
+    if (e.key === "Enter") calculate();
+  });
+});
+</script>
 </body>
 </html>
