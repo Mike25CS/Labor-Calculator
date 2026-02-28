@@ -1,323 +1,147 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gross Margin Labor Table</title>
-  <style>
-    :root {
-      --bg: #0b0f14;
-      --card: #121826;
-      --muted: #8aa0b5;
-      --text: #e6edf3;
-      --border: rgba(255,255,255,0.08);
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Labor Margin Calculator</title>
 
-      --red: rgba(255, 80, 80, 0.22);
-      --orange: rgba(255, 170, 70, 0.22);
-      --green: rgba(70, 220, 140, 0.22);
+<style>
+body {
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:#0f172a;
+  color:white;
+  padding:16px;
+}
 
-      --redStroke: rgba(255, 80, 80, 0.55);
-      --orangeStroke: rgba(255, 170, 70, 0.55);
-      --greenStroke: rgba(70, 220, 140, 0.55);
-    }
+.card {
+  max-width:600px;
+  margin:auto;
+  background:#1e293b;
+  padding:16px;
+  border-radius:14px;
+}
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, #152036 0%, var(--bg) 55%);
-      color: var(--text);
-      padding: 16px;
-    }
+input {
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
 
-    .wrap { max-width: 640px; margin: 0 auto; }
+button {
+  width:100%;
+  padding:12px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  background:#2563eb;
+  color:white;
+  margin-bottom:14px;
+}
 
-    header {
-      padding: 10px 6px 16px;
-    }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 6px 0;
-      letter-spacing: 0.2px;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
+.summary {
+  font-size:18px;
+  margin-bottom:12px;
+}
 
-    .card {
-      background: rgba(18,24,38,0.8);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-      backdrop-filter: blur(10px);
-    }
+.summary strong {
+  display:block;
+  margin-bottom:6px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
+.ideal {
+  opacity:.85;
+  font-size:16px;
+}
 
-    label {
-      font-size: 12px;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 6px;
-    }
+table {
+  width:100%;
+  border-collapse:collapse;
+}
 
-    input {
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,0.25);
-      color: var(--text);
-      font-size: 16px;
-      outline: none;
-    }
-    input:focus {
-      border-color: rgba(120, 170, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(120,170,255,0.15);
-    }
+th, td {
+  padding:10px;
+  text-align:left;
+}
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    button {
-      flex: 1;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(120,170,255,0.18);
-      color: var(--text);
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    button:active { transform: translateY(1px); }
-    .secondary { background: rgba(255,255,255,0.06); }
+tr:nth-child(even) {
+  background:#111827;
+}
 
-    .note {
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    .tableWrap {
-      margin-top: 14px;
-      overflow: hidden;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-variant-numeric: tabular-nums;
-    }
-
-    thead th {
-      text-align: left;
-      font-size: 12px;
-      color: var(--muted);
-      background: rgba(255,255,255,0.04);
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    tbody td {
-      padding: 11px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 14px;
-    }
-
-    tbody tr:last-child td { border-bottom: none; }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,0.18);
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .row-red    { background: var(--red);    outline: 1px solid var(--redStroke); }
-    .row-orange { background: var(--orange); outline: 1px solid var(--orangeStroke); }
-    .row-green  { background: var(--green);  outline: 1px solid var(--greenStroke); }
-
-    .neg {
-      color: #ff8f8f;
-      font-weight: 700;
-    }
-
-    .footer {
-      margin-top: 12px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    @media (max-width: 420px) {
-      .grid { grid-template-columns: 1fr; }
-      h1 { font-size: 18px; }
-    }
-  </style>
+.red { background:#7f1d1d; }
+.orange { background:#7c2d12; }
+.green { background:#065f46; }
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Gross Margin → Max Labor Table</h1>
-      <div class="sub">
-        Enter your <b>Selling Price</b> and <b>Material Cost</b>. This shows the <b>maximum labor</b> you can pay and still hit each gross margin from <b>30% to 50%</b>.
-      </div>
-    </header>
 
-    <div class="card">
-      <div class="grid">
-        <div>
-          <label for="sellingPrice">Selling Price ($)</label>
-          <input id="sellingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 34470" />
-        </div>
-        <div>
-          <label for="materialCost">Material Cost ($)</label>
-          <input id="materialCost" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 10300" />
-        </div>
-      </div>
+<div class="card">
+  <h2>Labor Margin Calculator</h2>
 
-      <div class="actions">
-        <button id="calcBtn">Generate Table</button>
-        <button id="resetBtn" class="secondary">Reset</button>
-      </div>
+  <input id="price" type="number" placeholder="Selling Price" />
+  <input id="materials" type="number" placeholder="Material Cost" />
+  <button onclick="calculate()">Generate</button>
 
-      <div class="note">
-        Max labor formula: <b>Labor = SellingPrice × (1 − GM) − Materials</b>.<br/>
-        Rows are color-coded: 30–34% red, 35–37% orange, 38–50% green.
-      </div>
+  <div id="summary" class="summary"></div>
 
-      <div id="summary" class="footer" style="display:none;">
-        <span class="pill" id="sumSP"></span>
-        <span class="pill" id="sumMat"></span>
-        <span class="pill" id="sumMaxLabor50"></span>
-      </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Margin %</th>
+        <th>Max Labor</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
 
-      <div class="tableWrap" style="margin-top:12px;">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:30%;">Gross Margin</th>
-              <th>Max Labor Allowed</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-            <tr><td colspan="2" style="color: var(--muted); padding: 14px 12px;">Enter values and tap “Generate Table”.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<script>
+function formatMoney(val){
+  return "$" + val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 
-  <script>
-    const spEl = document.getElementById('sellingPrice');
-    const matEl = document.getElementById('materialCost');
-    const tbody = document.getElementById('tbody');
-    const calcBtn = document.getElementById('calcBtn');
-    const resetBtn = document.getElementById('resetBtn');
+function calculate(){
+  const price = parseFloat(document.getElementById("price").value);
+  const materials = parseFloat(document.getElementById("materials").value);
+  const tbody = document.getElementById("tableBody");
+  const summary = document.getElementById("summary");
 
-    const summary = document.getElementById('summary');
-    const sumSP = document.getElementById('sumSP');
-    const sumMat = document.getElementById('sumMat');
-    const sumMaxLabor50 = document.getElementById('sumMaxLabor50');
+  if(!price || price <= 0) return;
 
-    const fmt = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 2
-    });
+  tbody.innerHTML = "";
 
-    function rowClassForMargin(pct) {
-      if (pct >= 30 && pct <= 34) return 'row-red';
-      if (pct >= 35 && pct <= 37) return 'row-orange';
-      if (pct >= 38 && pct <= 50) return 'row-green';
-      return '';
-    }
+  // 38% and 41% values
+  const labor38 = (price * (1 - 0.38)) - materials;
+  const labor41 = (price * (1 - 0.41)) - materials;
 
-    function render() {
-      const sp = Number(spEl.value);
-      const mat = Number(matEl.value);
+  summary.innerHTML = `
+    <strong>Max Labor Allowed: ${formatMoney(labor38)}</strong>
+    <div class="ideal">Ideal Labor Value (41%): ${formatMoney(labor41)}</div>
+  `;
 
-      if (!isFinite(sp) || !isFinite(mat) || sp <= 0) {
-        tbody.innerHTML = `<tr><td colspan="2" style="color: var(--muted); padding: 14px 12px;">
-          Please enter a valid Selling Price (> 0) and Material Cost.
-        </td></tr>`;
-        summary.style.display = "none";
-        return;
-      }
+  for(let i=30;i<=50;i++){
+    const gm = i/100;
+    const labor = (price * (1 - gm)) - materials;
 
-      // Build rows 30% to 50% (inclusive)
-      let rows = '';
-      for (let pct = 30; pct <= 50; pct++) {
-        const gm = pct / 100;
-        const labor = (sp * (1 - gm)) - mat; // max labor allowed
+    let rowClass="";
+    if(i>=30 && i<=34) rowClass="red";
+    if(i>=35 && i<=37) rowClass="orange";
+    if(i>=38 && i<=50) rowClass="green";
 
-        const cls = rowClassForMargin(pct);
-        const laborText = (labor < 0)
-          ? `<span class="neg">${fmt.format(labor)}</span> <span style="color:var(--muted); font-size:12px;">(materials already too high for this margin)</span>`
-          : fmt.format(labor);
+    const row = `
+      <tr class="${rowClass}">
+        <td>${i}%</td>
+        <td>${formatMoney(labor)}</td>
+      </tr>
+    `;
+    tbody.innerHTML += row;
+  }
+}
+</script>
 
-        rows += `
-          <tr class="${cls}">
-            <td><b>${pct}%</b></td>
-            <td>${laborText}</td>
-          </tr>
-        `;
-      }
-
-      tbody.innerHTML = rows;
-
-      // Summary pills
-      summary.style.display = "flex";
-      sumSP.textContent = `Selling Price: ${fmt.format(sp)}`;
-      sumMat.textContent = `Materials: ${fmt.format(mat)}`;
-
-      const laborAt50 = (sp * (1 - 0.50)) - mat;
-      sumMaxLabor50.textContent = `Max Labor @ 50%: ${fmt.format(laborAt50)}`;
-    }
-
-    function resetAll() {
-      spEl.value = '';
-      matEl.value = '';
-      tbody.innerHTML = `<tr><td colspan="2" style="color: var(--muted); padding: 14px 12px;">Enter values and tap “Generate Table”.</td></tr>`;
-      summary.style.display = "none";
-      spEl.focus();
-    }
-
-    calcBtn.addEventListener('click', render);
-    resetBtn.addEventListener('click', resetAll);
-
-    // Auto-generate on enter / input change (nice on mobile)
-    [spEl, matEl].forEach(el => {
-      el.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') render();
-      });
-      el.addEventListener('input', () => {
-        // Lightweight live update once both have values
-        if (spEl.value && matEl.value) render();
-      });
-    });
-  </script>
 </body>
 </html>
