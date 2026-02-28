@@ -3,100 +3,183 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Labor Margin Calculator</title>
+<title>Crisp Margin Calculator</title>
 
 <style>
-body {
+:root{
+  --bg:#0b0f14;
+  --card:rgba(20,25,35,0.85);
+  --border:rgba(255,255,255,0.08);
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+
+  --red:rgba(220,38,38,.18);
+  --orange:rgba(249,115,22,.18);
+  --green:rgba(16,185,129,.18);
+}
+
+*{box-sizing:border-box;}
+
+body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:#0f172a;
-  color:white;
-  padding:16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(circle at top left,#111827 0%,#0b0f14 60%);
+  color:var(--text);
+  padding:20px;
 }
 
-.card {
-  max-width:600px;
+.container{
+  max-width:650px;
   margin:auto;
-  background:#1e293b;
-  padding:16px;
-  border-radius:14px;
 }
 
-input {
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border-radius:8px;
-  border:none;
-  font-size:16px;
+.card{
+  background:var(--card);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 15px 40px rgba(0,0,0,.4);
 }
 
-button {
-  width:100%;
-  padding:12px;
-  font-size:16px;
-  border:none;
-  border-radius:8px;
-  background:#2563eb;
-  color:white;
+h1{
+  margin:0 0 18px 0;
+  font-size:22px;
+  letter-spacing:.5px;
+}
+
+.input-group{
   margin-bottom:14px;
 }
 
-.summary {
-  font-size:18px;
-  margin-bottom:12px;
+label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
 }
 
-.summary strong {
-  display:block;
+input{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.3);
+  color:white;
+  outline:none;
+  transition:.2s;
+}
+
+input:focus{
+  border-color:#3b82f6;
+  box-shadow:0 0 0 3px rgba(59,130,246,.25);
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:6px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:.5px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(37,99,235,.4);
+}
+
+.summary{
+  margin:22px 0 18px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+}
+
+.summary div{
+  font-size:20px;
+  font-weight:700;
   margin-bottom:6px;
 }
 
-.ideal {
-  opacity:.85;
-  font-size:16px;
-}
-
-table {
+table{
   width:100%;
   border-collapse:collapse;
+  border-radius:14px;
+  overflow:hidden;
 }
 
-th, td {
-  padding:10px;
+thead{
+  background:rgba(255,255,255,.05);
+}
+
+th,td{
+  padding:12px;
+  font-size:14px;
+}
+
+th{
   text-align:left;
+  color:var(--muted);
+  font-weight:500;
+  letter-spacing:.5px;
 }
 
-tr:nth-child(even) {
-  background:#111827;
+tbody tr{
+  border-top:1px solid var(--border);
 }
 
-.red { background:#7f1d1d; }
-.orange { background:#7c2d12; }
-.green { background:#065f46; }
+.red{background:var(--red);}
+.orange{background:var(--orange);}
+.green{background:var(--green);}
+
+tbody td:first-child{
+  font-weight:600;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2>Labor Margin Calculator</h2>
+<div class="container">
+  <div class="card">
+    <h1>Labor Margin Calculator</h1>
 
-  <input id="price" type="number" placeholder="Selling Price" />
-  <input id="materials" type="number" placeholder="Material Cost" />
-  <button onclick="calculate()">Generate</button>
+    <div class="input-group">
+      <label>Selling Price</label>
+      <input id="price" type="number" placeholder="Enter selling price" />
+    </div>
 
-  <div id="summary" class="summary"></div>
+    <div class="input-group">
+      <label>Material Cost</label>
+      <input id="materials" type="number" placeholder="Enter material cost" />
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Margin %</th>
-        <th>Max Labor</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+    <button onclick="calculate()">Generate Table</button>
+
+    <div id="summary" class="summary" style="display:none;"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Gross Margin</th>
+          <th>Max Labor Allowed</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+  </div>
 </div>
 
 <script>
@@ -112,33 +195,32 @@ function calculate(){
 
   if(!price || price <= 0) return;
 
-  tbody.innerHTML = "";
-
-  // 38% and 41% values
+  tbody.innerHTML="";
+  
   const labor38 = (price * (1 - 0.38)) - materials;
   const labor41 = (price * (1 - 0.41)) - materials;
 
+  summary.style.display="block";
   summary.innerHTML = `
-    <strong>Max Labor Allowed: ${formatMoney(labor38)}</strong>
-    <div class="ideal">Ideal Labor Value (41%): ${formatMoney(labor41)}</div>
+    <div>Max Labor Allowed: ${formatMoney(labor38)}</div>
+    <div>Ideal Labor Value: ${formatMoney(labor41)}</div>
   `;
 
   for(let i=30;i<=50;i++){
-    const gm = i/100;
-    const labor = (price * (1 - gm)) - materials;
+    const gm=i/100;
+    const labor=(price*(1-gm))-materials;
 
     let rowClass="";
     if(i>=30 && i<=34) rowClass="red";
     if(i>=35 && i<=37) rowClass="orange";
     if(i>=38 && i<=50) rowClass="green";
 
-    const row = `
+    tbody.innerHTML+=`
       <tr class="${rowClass}">
         <td>${i}%</td>
         <td>${formatMoney(labor)}</td>
       </tr>
     `;
-    tbody.innerHTML += row;
   }
 }
 </script>
